@@ -21,12 +21,19 @@ public class PlayerHealth : MonoBehaviour
     private CharacterMovement characterMovement;
     //Variable para que emita sonido el Player.
     private AudioSource audio;
+    //public AudioClip pickItem;
     //Para reproducir el audio herido.
     [SerializeField]
     private AudioClip hurtAudio;
     //Para reproducir el audio muerto.
     [SerializeField]
     private AudioClip dieAudio;
+    public bool isDead;
+    public LevelManager levelManager;
+    //public bool moduleEnable;
+    //private new ParticleSystem particleSystem;
+
+
     //Propiedades
     public int CurrentHealth
     {
@@ -52,12 +59,25 @@ public class PlayerHealth : MonoBehaviour
         get { return healthSlider; }
     }
 
+    //void Awake()
+    //{
+    //    //Assert.IsNotNull(healthSlider);
+    //    particleSystem = GetComponent<ParticleSystem>();
+    //    particleSystem.enableEmission = false;
+    //}
 
     void Start()
     {
         audio = GetComponent<AudioSource>();
         anim = GetComponent<Animator>();
         currentHealth = startingHealth;
+        characterMovement = GetComponent<CharacterMovement>();
+        //particleSystem = GetComponent<ParticleSystem>();
+        //var emission = particleSystem.emission;
+        //emission.enabled = moduleEnable;
+
+        levelManager = FindObjectOfType<LevelManager>();
+        isDead = false;
     }
 
    
@@ -65,8 +85,9 @@ public class PlayerHealth : MonoBehaviour
     {
         //Captura del tiempo pasado.
         timer += Time.deltaTime;
+        PlayerKill();
         //Cargamos el movimiento del player.
-        characterMovement = GetComponent<CharacterMovement>();
+        //characterMovement = GetComponent<CharacterMovement>();
     }
 
     //Cuando el jugador choca con un collider de la maza con el Istrigger activado.
@@ -117,6 +138,36 @@ public class PlayerHealth : MonoBehaviour
            
         }
         
+    }
+
+    public void PowerUpHealth()
+    {
+        if (currentHealth <= 80)
+        {
+            currentHealth += 20;
+        }
+        else if (currentHealth < startingHealth)
+        {
+            CurrentHealth = startingHealth;
+        }
+
+        healthSlider.value = currentHealth;
+        //audio.PlayOneShot(pickItem);
+    }
+    public void KillBox()
+    {
+        CurrentHealth = 0;
+        healthSlider.value = currentHealth;
+
+    }
+
+    public void PlayerKill()
+    {
+        if (currentHealth <= 0)
+        {
+            characterMovement.enabled = false;
+            levelManager.RespawnPlayer();
+        }
     }
 
 }
